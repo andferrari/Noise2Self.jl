@@ -37,19 +37,6 @@ function make_mask(img, T::Tuple{Int, Int}, Δ::Tuple{Int, Int})
     mask
 end
 
-"""
-    make_mask(img, T::Tuple{Int, Int}, n::Int)
-
-make a grid mask for `img`. 
-- `T` periods of the grid
-- `n` mask number.
-"""
-function make_mask(img, T::Tuple{Int, Int}, n::Int; target = gpu)
-    
-    (n > prod(T)) && error("check mask parameters")
-    make_mask(img, T, (CartesianIndices(T)[n][1],CartesianIndices(T)[n][2]))
-end
-
 
 function make_data(x, T::Tuple{Int, Int})
     
@@ -80,16 +67,6 @@ function J_func(data, m)
     img[:,:,1,1]
 end
 
-function sort_gpus()
-	mems = Int[]
-	gpus = collect(CUDA.devices())
-	for k in 1:length(gpus)
-		CUDA.device!(k-1)
-		push!(mems, CUDA.available_memory())
-	end
-	ind = sortperm(mems, rev=true)
-	hcat(gpus[ind], mems[ind])	
-end
 
 psnr(i, k) = 20*maximum(i) - 10*log10(sum((i - k).^2)/prod(size(k)))
 
